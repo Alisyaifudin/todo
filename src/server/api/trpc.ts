@@ -4,6 +4,7 @@ import { getAuth } from "@clerk/nextjs/server";
 import { TRPCError, initTRPC, type inferAsyncReturnType } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { env } from "~/env.mjs";
 import type {
   SignedInAuthObject,
   SignedOutAuthObject,
@@ -45,11 +46,7 @@ export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
 
 const isAuthed = t.middleware(({ next, ctx }) => {
-  if (
-    !ctx.auth?.userId ||
-    ctx.auth?.user?.emailAddresses?.[0]?.emailAddress !==
-      "muhammad.ali.syaifudin@hotmail.com"
-  ) {
+  if (!ctx.auth?.userId || ctx.auth?.userId !== env.USER_ID) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
     });
