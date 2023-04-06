@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "~/components/ui/dialog";
 import { Textarea } from "~/components/ui/textarea";
 import { Input } from "~/components/ui/input";
@@ -23,8 +22,8 @@ export function NewTask() {
   const [open, setOpen] = useState(false);
   const utils = api.useContext();
   const mutation = api.task.create.useMutation({
-    onSuccess() {
-      utils.task.getAll.invalidate();
+    async onSuccess() {
+      await utils.task.getAll.invalidate();
       setOpen(false);
       setTitle("");
       setDescription("");

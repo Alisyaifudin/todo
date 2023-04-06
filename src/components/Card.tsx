@@ -37,27 +37,27 @@ export default function Card({
   const [edit, setEdit] = useState({ title, description: children });
   const [isLoading, setIsLoading] = useState(false);
   const mutationDone = api.task.done.useMutation({
-    onSuccess() {
-      utils.task.getAll.invalidate();
+    async onSuccess() {
+      await utils.task.getAll.invalidate();
     },
     onError() {
       setIsDone(!isDone);
     },
   });
   const mutationDelete = api.task.delete.useMutation({
-    onSuccess() {
-      utils.task.getAll.invalidate().then(() => setIsLoading(false));
+    async onSuccess() {
+      await utils.task.getAll.invalidate();
+      setIsLoading(false);
     },
     onError() {
       setIsLoading(false);
     },
   });
   const mutationEdit = api.task.edit.useMutation({
-    onSuccess() {
-      utils.task.getAll.invalidate().then(() => {
-        setIsEdit(false);
-        setIsLoading(false);
-      });
+    async onSuccess() {
+      await utils.task.getAll.invalidate();
+      setIsEdit(false);
+      setIsLoading(false);
     },
     onError() {
       setIsLoading(false);

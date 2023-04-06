@@ -6,7 +6,6 @@ import Navigation from "~/components/Nav";
 import { NewTask } from "~/components/NewTask";
 import Skeleton from "~/components/Skeleton";
 import Suspense from "~/components/Suspense";
-import ThemeButton from "~/components/ThemeButton";
 import { api } from "~/utils/api";
 
 const Fallback = () => (
