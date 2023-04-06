@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { prisma } from "~/server/db";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  publicProcedure,
+  protectedProcedure,
+} from "~/server/api/trpc";
 
 export const taskRouter = createTRPCRouter({
   getAll: publicProcedure.query(async () => {
@@ -11,7 +15,7 @@ export const taskRouter = createTRPCRouter({
     });
     return tasks;
   }),
-  done: publicProcedure
+  done: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -25,13 +29,13 @@ export const taskRouter = createTRPCRouter({
       });
       return updated;
     }),
-  delete: publicProcedure.input(z.string()).mutation(async ({ input }) => {
+  delete: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
     const deleted = await prisma.task.delete({
       where: { id: input },
     });
     return deleted;
   }),
-  create: publicProcedure
+  create: protectedProcedure
     .input(
       z.object({
         title: z.string(),
@@ -47,7 +51,7 @@ export const taskRouter = createTRPCRouter({
       });
       return created;
     }),
-  edit: publicProcedure
+  edit: protectedProcedure
     .input(
       z.object({
         id: z.string(),

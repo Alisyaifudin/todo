@@ -2,6 +2,7 @@ import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { api } from "~/utils/api";
 import { AlertCircle } from "lucide-react";
+import { useAuth } from "@clerk/clerk-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,9 +30,8 @@ export default function Card({
   createdAt,
   updatedAt,
 }: CardProps) {
-  console.log(title);
-  console.log(updatedAt.getTime(), createdAt.getTime());
   const utils = api.useContext();
+  const { isSignedIn } = useAuth();
   const [isDone, setIsDone] = useState(done);
   const [isEdit, setIsEdit] = useState(false);
   const [edit, setEdit] = useState({ title, description: children });
@@ -40,10 +40,16 @@ export default function Card({
     onSuccess() {
       utils.task.getAll.invalidate();
     },
+    onError() {
+      setIsDone(!isDone);
+    },
   });
   const mutationDelete = api.task.delete.useMutation({
     onSuccess() {
       utils.task.getAll.invalidate().then(() => setIsLoading(false));
+    },
+    onError() {
+      setIsLoading(false);
     },
   });
   const mutationEdit = api.task.edit.useMutation({
@@ -53,29 +59,38 @@ export default function Card({
         setIsLoading(false);
       });
     },
+    onError() {
+      setIsLoading(false);
+      setIsEdit(false);
+    },
   });
   const handleCheck = () => {
+    if (!isSignedIn) return;
     setIsDone(!isDone);
     mutationDone.mutate({ id, done: !isDone });
   };
   const handleDelete = () => {
+    if (!isSignedIn) return;
     mutationDelete.mutate(id);
     setIsLoading(true);
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isSignedIn) return;
     if (e.target.value.length > 31) return;
     setEdit({ ...edit, title: e.target.value });
   };
   const handleDescriptionChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
+    if (!isSignedIn) return;
     if (e.target.value.length > 153) return;
     setEdit({ ...edit, description: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isSignedIn) return;
     if (!edit.title.length || !edit.description.length) return;
     if (edit.title === title && edit.description === children) {
       setIsEdit(false);
@@ -104,31 +119,33 @@ export default function Card({
             >
               {title}
             </h2>
-            <div className="flex gap-2">
-              <button
-                onClick={() => !isDone && setIsEdit(true)}
-                className="underline disabled:cursor-not-allowed disabled:text-slate-300"
-                disabled={isDone}
-              >
-                Sunting
-              </button>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="text-red-500 underline">
-                  Hapus
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="min-w-fit">
-                  <DropdownMenuItem className="w-fit">
-                    <button
-                      onClick={handleDelete}
-                      className="flex items-center gap-1 text-red-500"
-                    >
-                      <AlertCircle className="mr-2 h-4 w-4" />
-                      <span>Yakin?</span>
-                    </button>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            {isSignedIn && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => !isDone && setIsEdit(true)}
+                  className="underline disabled:cursor-not-allowed disabled:text-slate-300"
+                  disabled={isDone}
+                >
+                  Sunting
+                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="text-red-500 underline">
+                    Hapus
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="min-w-fit">
+                    <DropdownMenuItem className="w-fit">
+                      <button
+                        onClick={handleDelete}
+                        className="flex items-center gap-1 text-red-500"
+                      >
+                        <AlertCircle className="mr-2 h-4 w-4" />
+                        <span>Yakin?</span>
+                      </button>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
           </div>
           <p className={twMerge("px-1", isDone && "line-through")}>
             {children}

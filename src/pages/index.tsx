@@ -1,3 +1,4 @@
+import { useAuth } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Card from "~/components/Card";
@@ -18,7 +19,7 @@ const Fallback = () => (
 
 const Home: NextPage = () => {
   const { data, isSuccess } = api.task.getAll.useQuery();
-
+  const { isSignedIn } = useAuth();
   return (
     <>
       <Head>
@@ -46,7 +47,7 @@ const Home: NextPage = () => {
               </Card>
             ))}
           </Suspense>
-          <NewTask />
+          {isSignedIn && <NewTask />}
         </section>
       </main>
     </>
