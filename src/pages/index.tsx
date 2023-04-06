@@ -39,6 +39,8 @@ const Home: NextPage = () => {
                 id={task.id}
                 title={task.title}
                 done={task.completed}
+                createdAt={task.createdAt}
+                updatedAt={task.updatedAt}
               >
                 {task.description}
               </Card>

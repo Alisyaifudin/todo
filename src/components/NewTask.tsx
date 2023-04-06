@@ -26,6 +26,8 @@ export function NewTask() {
     onSuccess() {
       utils.task.getAll.invalidate();
       setOpen(false);
+      setTitle("");
+      setDescription("");
     },
   });
 
@@ -91,6 +93,7 @@ export function NewTask() {
             <Button
               disabled={!title.length || !description.length}
               type="submit"
+              className="disabled:cursor-not-allowed"
             >
               Save changes
             </Button>

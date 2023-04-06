@@ -47,4 +47,22 @@ export const taskRouter = createTRPCRouter({
       });
       return created;
     }),
+  edit: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string(),
+        description: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const edited = await prisma.task.update({
+        where: { id: input.id },
+        data: {
+          title: input.title,
+          description: input.description,
+        },
+      });
+      return edited;
+    }),
 });
