@@ -45,7 +45,11 @@ export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
 
 const isAuthed = t.middleware(({ next, ctx }) => {
-  if (!ctx.auth?.userId) {
+  if (
+    !ctx.auth?.userId ||
+    ctx.auth?.user?.emailAddresses?.[0]?.emailAddress !==
+      "muhammad.ali.syaifudin@hotmail.com"
+  ) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
     });
