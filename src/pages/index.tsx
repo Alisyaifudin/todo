@@ -2,8 +2,10 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Card from "~/components/Card";
 import Navigation from "~/components/Nav";
+import { NewTask } from "~/components/NewTask";
 import Skeleton from "~/components/Skeleton";
 import Suspense from "~/components/Suspense";
+import ThemeButton from "~/components/ThemeButton";
 import { api } from "~/utils/api";
 
 const Fallback = () => (
@@ -27,7 +29,7 @@ const Home: NextPage = () => {
       <header>
         <Navigation />
       </header>
-      <main className="mx-auto max-w-4xl px-4">
+      <main className="mx-auto flex max-w-3xl flex-col gap-2 px-4">
         <h1 className="text-3xl font-bold">To Do or Not</h1>
         <section className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Suspense isFallback={!isSuccess} fallback={<Fallback />}>
@@ -42,7 +44,7 @@ const Home: NextPage = () => {
               </Card>
             ))}
           </Suspense>
-          {/* <Fallback/> */}
+          <NewTask />
         </section>
       </main>
     </>
