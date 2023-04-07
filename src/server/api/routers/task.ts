@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { prisma } from "~/server/db";
 import {
   createTRPCRouter,
   publicProcedure,
@@ -7,8 +6,8 @@ import {
 } from "~/server/api/trpc";
 
 export const taskRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async () => {
-    const tasks = await prisma.task.findMany({
+  getAll: publicProcedure.query(async ({ctx}) => {
+    const tasks = await ctx.prisma.task.findMany({
       orderBy: {
         createdAt: "desc",
       },
@@ -22,15 +21,15 @@ export const taskRouter = createTRPCRouter({
         done: z.boolean(),
       })
     )
-    .mutation(async ({ input }) => {
-      const updated = await prisma.task.update({
+    .mutation(async ({ input, ctx }) => {
+      const updated = await ctx.prisma.task.update({
         where: { id: input.id },
         data: { completed: input.done },
       });
       return updated;
     }),
-  delete: protectedProcedure.input(z.string()).mutation(async ({ input }) => {
-    const deleted = await prisma.task.delete({
+  delete: protectedProcedure.input(z.string()).mutation(async ({ input, ctx }) => {
+    const deleted = await ctx.prisma.task.delete({
       where: { id: input },
     });
     return deleted;
@@ -42,8 +41,8 @@ export const taskRouter = createTRPCRouter({
         description: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
-      const created = await prisma.task.create({
+    .mutation(async ({ input, ctx }) => {
+      const created = await ctx.prisma.task.create({
         data: {
           title: input.title,
           description: input.description,
@@ -59,8 +58,8 @@ export const taskRouter = createTRPCRouter({
         description: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
-      const edited = await prisma.task.update({
+    .mutation(async ({ input, ctx }) => {
+      const edited = await ctx.prisma.task.update({
         where: { id: input.id },
         data: {
           title: input.title,

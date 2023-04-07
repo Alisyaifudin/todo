@@ -2,7 +2,6 @@ import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { api } from "~/utils/api";
 import { AlertCircle } from "lucide-react";
-import { useAuth } from "@clerk/clerk-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +11,7 @@ import {
 import { Textarea } from "~/components/ui/textarea";
 import { Input } from "./ui/input";
 import Spinner from "./Spinner";
+import { useSession } from "next-auth/react";
 
 interface CardProps {
   title: string;
@@ -31,7 +31,8 @@ export default function Card({
   updatedAt,
 }: CardProps) {
   const utils = api.useContext();
-  const { isSignedIn } = useAuth();
+  const { data: session } = useSession();
+  const isSignedIn = !!session?.user?.name;
   const [isDone, setIsDone] = useState(done);
   const [isEdit, setIsEdit] = useState(false);
   const [edit, setEdit] = useState({ title, description: children });

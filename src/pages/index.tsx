@@ -1,4 +1,3 @@
-import { useAuth } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Card from "~/components/Card";
@@ -7,6 +6,7 @@ import { NewTask } from "~/components/NewTask";
 import Skeleton from "~/components/Skeleton";
 import Suspense from "~/components/Suspense";
 import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
 
 const Fallback = () => (
   <>
@@ -18,7 +18,7 @@ const Fallback = () => (
 
 const Home: NextPage = () => {
   const { data, isSuccess } = api.task.getAll.useQuery();
-  const { isSignedIn } = useAuth();
+  const { data: session } = useSession();
   return (
     <>
       <Head>
@@ -46,7 +46,7 @@ const Home: NextPage = () => {
               </Card>
             ))}
           </Suspense>
-          {isSignedIn && <NewTask />}
+          {!!session?.user?.name && <NewTask />}
         </section>
       </main>
     </>

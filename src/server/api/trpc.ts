@@ -1,28 +1,25 @@
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
-import { prisma } from "~/server/db";
-import { getAuth } from "@clerk/nextjs/server";
+// import { prisma } from "~/server/db";
 import { TRPCError, initTRPC, type inferAsyncReturnType } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import { env } from "~/env.mjs";
-import type {
-  SignedInAuthObject,
-  SignedOutAuthObject,
-} from "@clerk/nextjs/dist/api";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "~/pages/api/auth/[...nextauth]";
+import { prisma } from "~/server/db";
 
-interface AuthContext {
-  auth: SignedInAuthObject | SignedOutAuthObject;
-}
-
-export const createContextInner = ({ auth }: AuthContext) => {
+export const createContextInner = ({ req, res }: CreateNextContextOptions) => {
   return {
-    auth,
     prisma,
+    req,
+    res,
   };
 };
 
-export const createTRPCContext = (opts: CreateNextContextOptions) => {
-  return createContextInner({ auth: getAuth(opts.req) });
+export const createTRPCContext = async ({
+  req,
+  res,
+}: CreateNextContextOptions) => {
+  return createContextInner({ req, res });
 };
 
 export type Context = inferAsyncReturnType<typeof createTRPCContext>;
@@ -45,18 +42,35 @@ export const createTRPCRouter = t.router;
 
 export const publicProcedure = t.procedure;
 
-const isAuthed = t.middleware(({ next, ctx }) => {
-  if (!ctx.auth?.userId || ctx.auth?.userId !== env.USER_ID) {
+const isAuthed = t.middleware(async ({ ctx, next }) => {
+  const auth = await getServerSession(ctx.req, ctx.res, authOptions);
+  if (!auth || !auth.user) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
     });
   }
   return next({
     ctx: {
-      auth: ctx.auth,
+      auth,
       prisma: ctx.prisma,
     },
   });
 });
 
 export const protectedProcedure = t.procedure.use(isAuthed);
+
+const isNotAuthed = t.middleware(async ({ ctx, next }) => {
+  const auth = await getServerSession(ctx.req, ctx.res, authOptions);
+  if (auth && auth.user) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+    });
+  }
+  return next({
+    ctx: {
+      prisma: ctx.prisma,
+    },
+  });
+});
+
+export const unsignProcedure = t.procedure.use(isNotAuthed);

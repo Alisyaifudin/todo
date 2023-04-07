@@ -2,14 +2,20 @@ import { type AppType } from "next/app";
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import { ThemeProvider } from "next-themes";
-import { ClerkProvider } from "@clerk/nextjs";
+import { SessionProvider } from "next-auth/react";
+import { Session } from "next-auth";
+import { Toaster } from "~/components/ui/toaster";
 
-const MyApp: AppType = ({ Component, pageProps }) => {
+const MyApp: AppType<{ session: Session; [x: string]: any }> = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}) => {
   return (
     <ThemeProvider attribute="class">
-      <ClerkProvider {...pageProps}>
+      <SessionProvider session={session}>
         <Component {...pageProps} />
-      </ClerkProvider>
+        <Toaster />
+      </SessionProvider>
     </ThemeProvider>
   );
 };
