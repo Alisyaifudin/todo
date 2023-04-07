@@ -1,29 +1,22 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
-
 const SIGNIN_ERROR = ["NOT_FOUND", "BAD_REQUEST", "INVALID_REQUEST"];
 
 const ErrorPage = () => {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { query } = router;
-  console.log("AAAAA");
-  console.log(query.error);
   useEffect(() => {
     if (query.error) {
       setMounted(true);
     }
   }, [query]);
   if (mounted) {
-    console.log("BBBBB");
-    console.log(query.error);
     if (SIGNIN_ERROR.includes(query.error as string)) {
-      console.log(query.error);
-      router.push(`/auth/signin?error=${query.error}`);
+      router
+        .push(`/auth/signin?error=${query.error as string}`)
     } else {
-      console.log("CCCCC");
-      console.log(query.error);
       return (
         <>
           <Head>

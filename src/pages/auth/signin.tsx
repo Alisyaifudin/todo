@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Label } from "~/components/ui/label";
@@ -60,7 +59,7 @@ export default function SignIn() {
         description: "Anda berhasil mendaftar",
       });
     }
-  }, [query]);
+  }, [query, toast]);
   if (session?.user?.name) {
     router.push("/");
     return null;
@@ -147,11 +146,6 @@ export default function SignIn() {
           >
             Masuk
           </Button>
-          <Link href="/auth/signup" legacyBehavior>
-            <a className="inline-block align-baseline text-sm font-bold text-blue-500 hover:text-blue-800">
-              Buat
-            </a>
-          </Link>
         </div>
       </form>
     </div>

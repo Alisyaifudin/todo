@@ -3,10 +3,10 @@ import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
-import { Session } from "next-auth";
+import { type Session } from "next-auth";
 import { Toaster } from "~/components/ui/toaster";
 
-const MyApp: AppType<{ session: Session; [x: string]: any }> = ({
+const MyApp: AppType<{ session: Session; [x: string]: unknown }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {

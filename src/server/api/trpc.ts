@@ -15,7 +15,7 @@ export const createContextInner = ({ req, res }: CreateNextContextOptions) => {
   };
 };
 
-export const createTRPCContext = async ({
+export const createTRPCContext = ({
   req,
   res,
 }: CreateNextContextOptions) => {
@@ -58,19 +58,3 @@ const isAuthed = t.middleware(async ({ ctx, next }) => {
 });
 
 export const protectedProcedure = t.procedure.use(isAuthed);
-
-const isNotAuthed = t.middleware(async ({ ctx, next }) => {
-  const auth = await getServerSession(ctx.req, ctx.res, authOptions);
-  if (auth && auth.user) {
-    throw new TRPCError({
-      code: "FORBIDDEN",
-    });
-  }
-  return next({
-    ctx: {
-      prisma: ctx.prisma,
-    },
-  });
-});
-
-export const unsignProcedure = t.procedure.use(isNotAuthed);
